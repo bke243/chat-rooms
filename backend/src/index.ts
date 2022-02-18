@@ -1,5 +1,4 @@
 import express from "express";
-import http from "http";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
@@ -19,7 +18,7 @@ app.use(morgan("combined"))
 
 // cors as of now only "http://localhost:3000"
 app.use(cors({
-  origin: ["http://localhost:3000"],
+  origin: ["*"],
 }));
 
 // parse all the request body
@@ -31,14 +30,12 @@ const APPLICATION_PORT = process.env.PORT || 6000;
 const MONGODB_URL = process.env.MONGODB_URL || "";
 
 mongoose.connect(MONGODB_URL).then(_successConnexionResult => {
-  app.listen(APPLICATION_PORT, () => {
+  const appServer = app.listen(APPLICATION_PORT, () => {
     console.log(`============= The application started on port ${APPLICATION_PORT} ============`);
-    // seting  up the websocket connection
-    const applicationServer = http.createServer(app);
-    socketIo.init(applicationServer);
   })
-}).catch(error => {
-  console.log(error);
+  // seting  up the websocket connection
+  socketIo.init(appServer);
+}).catch(_error => {
   process.exit();
 })
 
